@@ -27,7 +27,7 @@ void MessageQueue<T>::send(T &&msg)
     std::lock_guard<std::mutex> lck(_mutex);
     
     _queue.clear();
-    _queue.push_back(std::move(msg));
+    _queue.emplace_back(std::move(msg));
 
     _condition.notify_one();
 }
@@ -36,6 +36,11 @@ void MessageQueue<T>::send(T &&msg)
 TrafficLight::TrafficLight()
 {
     _currentPhase = TrafficLightPhase::red;
+}
+
+TrafficLight::~TrafficLight()
+{
+
 }
 
 void TrafficLight::waitForGreen()
@@ -68,7 +73,7 @@ void TrafficLight::cycleThroughPhases()
     std::mt19937 mt(rd());
     std::uniform_real_distribution<double> dist(4000, 6000);
 
-    int timeLimit = dist(mt);
+    double timeLimit = dist(mt);
     auto startTime = std::chrono::steady_clock::now();
     auto endTime = std::chrono::steady_clock::now();
     auto duration = -1;
